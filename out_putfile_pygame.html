@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>App</title>
+<script src="https://pyscript.net/latest/pyscript.js"></script>
+<link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+<style>
+body{font-family:Arial,sans-serif;margin:24px;background:#f5f5f5}
+.app{max-width:420px;padding:16px;background:#fff;border:1px solid #ccc;border-radius:12px}
+.row{margin:10px 0;display:flex;align-items:center}
+.error{color:#b00020;margin-top:10px}
+#pygame_container{width:420px;height:500px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div class="app"><h2>App</h2>
+<div id="pygame_container"></div>
+
+import pygame
+from pyscript import document
+
+# Initialize pygame
+pygame.init()
+WIDTH, HEIGHT = 420, 500
+
+# Get the container and create canvas
+container = document.getElementById("pygame_container")
+canvas = pygame.display.set_mode((WIDTH, HEIGHT))
+canvas.fill((240, 240, 240))
+
+# Widget rendering positions
+y_pos = 30
+
+# StringVar storage
+stringvars = {}
+
+# Store button info for click handling
+buttons = {}
+
+# Render each widget using Pygame
+
+pygame.display.flip()
+
+# Main event loop
+running = True
+clock = pygame.time.Clock()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Check button clicks
+            for btn_id, rect in buttons.items():
+                if rect.collidepoint(event.pos):
+                    print(f"Button {btn_id} clicked")
+                    # You can map to your Python functions here
+                    # if btn_id == "submit": submit_function()
+    
+    clock.tick(60)
+
+pygame.quit()
+
+<div class="error" id="error"></div>
+</div>
+</body>
+</html>

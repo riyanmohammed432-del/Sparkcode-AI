@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sparkcode AI workshop</title>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="whitelogo.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css">
+  <script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Urbanist:wght@400;600;700;800&family=Fira+Code&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', 'Urbanist', 'Fira Code', 'Times New Roman', Times, serif;
+      background: url("https://www.pngitem.com/pimgs/m/616-6164272_all-programming-languages-logo-hd-png-download.png");
+      color: #111;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;left: 0;width: 100vw;height: 100vh;
+      background: url('') center/contain no-repeat;
+      background-attachment: fixed;
+      z-index: 0;opacity: 0.8;
+    }
+    body * { position: relative; z-index: 1; }
+    .page-wrapper { display: flex; flex: 1; min-height: 100vh; padding-top: 80px; justify-content: space-between; transition: all 1s ease-out; }
+    .sidebar { width: 260px; background: linear-gradient(180deg, #ff3155, #ff40ffc9 88%); color: #fff; display: flex; flex-direction: column; padding: 30px 20px; font-weight: 600; border-right: none; box-shadow: 4px 0 10px rgba(255,80,95,0.22);}
+    .sidebar h2 { font-size: 1.4rem; font-weight: 700; color: #ffd800; margin-bottom: 10px;}
+    .divider { width: 100%; height: 3px; background: #ffd800; margin: 10px 0; border-radius: 2px;}
+    .step-label { color: #ffe033; font-size: .9rem; margin-top:15px;background:rgba(0,0,0,0.18);padding:4px 10px;border-radius:6px;}
+    .sidebar-section {margin:15px 0;}
+    .sidebar-section h3{font-size: 1rem; margin-bottom: 6px; color: #ffd800;}
+    .sidebar button {
+      background: #111;
+      border: 1px solid #ffd800;
+      color: #ffd800;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin: 4px 0;
+      transition: all 0.3s ease;
+    }
+    .sidebar button:hover {background:#ffd800;color:#111;}
+    .plus-btn {
+      background: linear-gradient(135deg, #00d4ff, #00a8ff) !important;
+      border: 1px solid #00d4ff !important;
+      color: #111 !important;
+    }
+    .plus-btn:hover {
+      background: linear-gradient(135deg, #00a8ff, #0088ff) !important;
+    }
+    .step2-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .language-dropdown {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+      border: 1px solid #ffd800;
+      max-height: 150px;
+      overflow-y: auto;
+      pointer-events: auto;
+    }
+    .language-option {
+      background: #111;
+      border: 1px solid #ffd800;
+      color: #ffd800;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+    .language-option:hover {
+      background: #ffd800;
+      color: #111;
+    }
+    @keyframes shine {
+      0% { box-shadow: 0 0 0 0 rgba(255, 216, 0, 0.8), 0 2px 32px rgba(255, 80, 95, 0.13); }
+      50% { box-shadow: 0 0 20px 10px rgba(255, 216, 0, 0.8), 0 2px 32px rgba(255, 80, 95, 0.13); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 216, 0, 0), 0 2px 32px rgba(255, 80, 95, 0.13); }
+    }
+    .chatbox-bar.shine {
+      animation: shine 1s ease-out 3;
+    }
+    @keyframes expandSidebar {
+      from { width: 280px; }
+      to { width: 600px; }
+    }
+    .code-sidebar.expanding {
+      animation: expandSidebar 1s ease-out forwards;
+    }
+    .code-sidebar.expanded {
+      width: 600px;
+    }
+    .code-sidebar {
+      width: 280px; background: #111; color: #ffd800; display: flex; flex-direction: column; padding: 30px 20px; font-family: 'Fira Code', monospace;
+      border-left: 3px solid #ffd800; box-shadow: -4px 0 10px rgba(255,222,97,0.37); position: relative; overflow: hidden;
+    }
+    .code-sidebar h3 { color: #ffd800; margin-bottom: 10px;}
+    .code-lines {
+      counter-reset: line; font-size: 0.95rem; line-height: 1.6em; white-space: pre;
+      background: #181818; padding: 10px; border-radius: 8px; border-left: 4px solid #ff40ff; color: #ffd800;
+    }
+    .code-lines span{display: block;counter-increment: line;}
+    .code-lines span::before{content: counter(line);display: inline-block;width: 25px;color: #ff3155;margin-right: 8px;text-align: right;}
+    .output-area {margin-top:10px; padding:10px;background:#181818; color:#ffd800; border-top:2px solid #ffd800; border-radius:6px;}
+    /* Nav & Header design */
+    .site-header {
+      position: fixed; top: 10px; width: 100%; display: flex; background: rgba(22,22,22,0.4); backdrop-filter: blur(8px);
+      justify-content: space-between; align-items: center; padding: 6px 40px; z-index: 100; border-radius: 40px;
+      box-shadow: 0 0 20px rgba(255, 80, 95, 0.4);
+    }
+    .header-left, .header-right { display: flex; align-items: center; gap: 10px;}
+    .site-logo { width: 40px; height: 40px; border-radius: 10%; object-fit: contain;}
+    .account-icon { width: 24px; height: 24px;}
+    .account-text { color: #ffd800; font-weight: 700; user-select: none; font-size: 0.9rem;}
+    .nav-bar-centered { flex: 1; display: flex; justify-content: center; border-radius: 30px;}
+    .nav-list { list-style: none; display: flex; gap: 40px;color: #fff;font-weight: 600;padding: 0; margin: 0;}
+    .nav-list > li {position: relative;cursor: pointer;padding: 4px 10px;font-size: 0.95rem;user-select: none;}
+    .nav-list > li:hover { color: #ffd800; }
+    .dropdown { display: none; position: absolute; top: 100%; left: 0; background: rgba(20, 20, 20, 0.9); border-radius: 8px; padding: 8px 0; min-width: 160px; box-shadow: 0 4px 14px rgba(0,0,0,0.4); z-index: 110;}
+    .dropdown li {padding: 10px 16px; color: #ffd800; white-space: nowrap; transition:  0.3s, color 0.3s;}
+    .dropdown li:hover {background: rgba(255, 80, 95, 0.5);color: #fff;cursor: pointer;}
+    .nav-list > li:hover > .dropdown {display: block;}
+    .account-container {display: flex;flex-direction: column;align-items: center;margin-left: 10px;cursor: pointer;}
+    .header-right {position: absolute;right: 180px;top: 50%;transform: translateY(-50%);display: flex;align-items: center;gap: 10px;}
+    .account-container {display: flex;flex-direction: column;align-items: center;cursor: pointer;position: relative;}
+    .account-container .dropdown {display: none;position: absolute;top: 120%;left: 0;background: rgba(20, 20, 20, 0.9);border-radius: 8px;padding: 8px 0;min-width: 150px;box-shadow: 0 4px 14px rgba(0,0,0,0.4);}
+    .account-container:hover .dropdown {display: block;}
+    .nav-list {list-style: none;display: flex;gap: 40px;color: #fff;font-weight: 600;padding: 0;margin: 0;margin-left: 20px;align-items: center;}
+    h1 {    
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 2.5vw;
+      font-weight: 20;
+      letter-spacing: 2px;
+      color: #ffd800;
+      user-select: none;
+      margin: 0;
+    }
+    /* --- Centered Sparkcode AI title --- */
+    .center-title {
+      position: absolute;
+      left: 50%;
+      top: 68px;
+      transform: translate(-50%, 0);
+      z-index: 10;
+      text-align: center;
+      font-size: 2.5rem;
+      font-family: 'Urbanist', 'Inter', sans-serif;
+      font-weight: 900;
+      color: #ffd800;
+      text-shadow: 0 8px 35px #26061f, 0 1px 0 #ff3155, 0 0px 0 #ff40ff;
+      letter-spacing: 2px;
+      pointer-events: none;
+      user-select: none;
+    }
+    .chat-area-wrapper {
+      position: fixed;
+      bottom: 70px;
+      left: 300px;
+      right: 320px;
+      max-width: 900px;
+      margin: 0 auto;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: 120px;
+      max-height: 30vh;
+      overflow-y: auto;
+      transition: box-shadow 0.2s, right 1s ease-out;
+      background: rgba(30, 10, 40, 0.897);
+      border-radius: 24px;
+      box-shadow: 0 0 40px 0 rgba(255,80,95,0.09);
+      padding: 24px 32px 18px 32px;
+      border: 2px solid #ffd900be;
+      gap: 8px;
+      scrollbar-color: #ffd800 #241226;
+    }
+    .chat-area-wrapper::-webkit-scrollbar{background: #241226;width:8px;}
+    .chat-area-wrapper::-webkit-scrollbar-thumb{background: #ffd800;}
+    .chat-message {
+      opacity: 0;
+      animation: msgin 0.4s cubic-bezier(.65,-0.03,.38,1.26) forwards;
+      margin: 2px 0;
+      padding: 10px 16px;
+      max-width: 86%;
+      border-radius: 16px;
+      background: linear-gradient(110deg, #1a1121 88%, #34303d 94%);
+      color: #ffd800;
+      font-family: 'Inter', 'Fira Code', sans-serif;
+      font-size: 1.08rem;
+      word-break: break-word;
+      box-shadow: 0 2px 18px 0 rgb(255 222 97 / 8%);
+      border: 1.1px solid #ffd80033;
+      transition: background 0.22s;
+    }
+    @keyframes msgin {
+      to { opacity: 1; transform: translateY(0);}
+      from { opacity: 0; transform: translateY(25px);}
+    }
+    .chat-message.user {
+      background: linear-gradient(120deg, #ffd800 90%, #ff3155 100%);
+      color: #111;
+      align-self: flex-end;
+      font-weight: 700;
+      border-color: #ff3155b0;
+    }
+    /* --- Chat input at the very bottom --- */
+    .chatbox-bar {
+      position: fixed;
+      left: 300px;
+      right: 320px;
+      bottom: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      background: rgb(25, 12, 16);
+      border-radius: 24px;
+      border: 1.5px solid #ffd80060;
+      box-shadow: 0 2px 32px rgba(255, 80, 95, 0.13);
+      padding: 12px 18px;
+      max-width: 900px;
+      margin: 0 auto;
+      gap: 16px;
+      transition: right 1s ease-out;
+    }
+    .chat-area-wrapper.contracted {
+      right: 660px;
+    }
+    .chatbox-bar.contracted {
+      right: 660px;
+    }
+    .chatbox-bar input[type="text"] {
+      flex: 1; font-size: 1.1rem; background: transparent; border: none; color: #ffd800;
+      font-family: sans-serif;
+      outline: none; padding: 5px 10px;
+    }
+    .chatbox-bar input[type="text"]::placeholder { color: #b0ae9c;}
+    .chatbox-bar button {
+      background: #ffd800; color: #ff3155; font-weight: 800;
+      border: none; border-radius: 16px; padding: 9px 29px; font-size: 1.1rem; cursor: pointer;
+      box-shadow: 0 2px 12px rgba(255,80,95,0.12);
+      transition: background 0.22s, color 0.22s, transform 0.17s;
+    }
+    .chatbox-bar button:hover {background: #ff3155; color: #ffd800; transform: scale(1.08);}
+    @media (max-width: 1100px) { 
+      .chat-area-wrapper, .chatbox-bar { left: 20vw; right: 20vw; }
+    }
+    @media (max-width: 800px) {
+      .chat-area-wrapper, .chatbox-bar, .center-title { left: 3vw; right: 3vw; }
+      .sidebar, .code-sidebar {display:none;}
+      .page-wrapper {justify-content: center;}
+    }
+
+        /* Make chat message area bigger */
+    .chat-area-wrapper {
+      max-width: 1100px;      /* increase width */
+      min-height: 180px;      /* increase minimum height */
+      max-height: 40vh;       /* increase max height */
+      padding: 32px 48px 28px 48px; /* larger padding */
+      font-size: 1.3rem;      /* bigger font inside messages */
+    }
+
+    /* Make chat messages bigger */
+    .chat-message {
+      font-size: 1.1rem;     /* enlarge text */
+      padding: 14px 20px;    /* bigger padding in messages */
+      max-width: 90%;        /* allow wider messages */
+    }
+
+    /* Make user messages bigger to match */
+    .chat-message.user {
+      font-weight: 800;
+      padding: 14px 20px;
+    }
+
+    /* Make chatbox input bar bigger */
+    .chatbox-bar {
+      max-width: 1100px;    /* bigger container */
+      padding: 16px 24px;   /* more padding */
+    }
+
+    /* Bigger input field text and height */
+    .chatbox-bar input[type="text"] {
+      font-size: 1.3rem;
+      padding: 5px 7px;
+    }
+
+    /* Bigger send button */
+    .chatbox-bar button {
+      padding: 4px 22px;
+      font-size: 1.3rem;
+      border-radius: 24px;
+    }
+    /* Make chat message area much taller */
+    .chat-area-wrapper {
+      max-width: 1100px;
+      min-height: 400px;      /* increased from 180px */
+      padding: 40px 50px 35px 50px;
+      font-size: 1.3rem;
+    }
+
+    .message-top-box {
+      position: fixed;
+      top: 90px; /* slightly below nav bar height */
+      left: 300px; /* same as chat-area left */
+      right: 320px; /* same as chat-area right */
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(0, 255, 242, 0.849);
+      color: #ea06ffec;
+      text-shadow:
+        -1px -1px 0 black,
+        1px -1px 0 black,
+        -1px 1px 0 black,
+        1px 1px 0 black;
+      font-weight: 700;
+      font-family: 'Urbanist', 'Inter', sans-serif;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      padding: 8px 16px;
+      text-align: center;
+      z-index: 101; /* above header (z-index: 100) */
+      box-shadow: 0 0 15px rgba(255, 216, 0, 0.8);
+      transition: right 1s ease-out;
+    }
+    .message-top-box.contracted {
+      right: 660px;
+      font-size: 1rem;
+    }
+    .chat-message-with-icon {
+      position: relative;
+    }
+    .chat-icon {
+      position: absolute;
+      top: -9px;
+      left: -10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+      box-shadow: 0 0 7px rgba(255, 0, 212, 0.6);
+    }
+    .site-header {
+      position: fixed;
+      top: 6px;
+      width: 100%;
+      display: flex;
+      background: rgb(255, 255, 255);
+      backdrop-filter: blur(8px);
+      justify-content: space-between;
+      align-items: center;
+      padding: 0px 28px;        /* minimal height padding */
+      height: 65px;             /* fixed thin height */
+      z-index: 100;
+      border-radius: 24px;      /* slimmer curve */
+      box-shadow: 0 0 15px rgba(255, 80, 95, 0.4);
+    }
+
+    .site-logo {
+      width: 32px;              /* smaller logo */
+      height: 32px;
+      border-radius: 10%;
+      object-fit: contain;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      gap: 26px;                /* smaller spacing between items */
+      color: #fff;
+      font-weight: 600;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-list > li {
+      position: relative;
+      cursor: pointer;
+      padding: 2px 8px;         /* less button padding */
+      font-size: 0.9rem;
+      user-select: none;
+    }
+
+    .header-right {
+      position: absolute;
+      right: 140px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;                 /* tighter icon spacing */
+    }
+
+    h1 {
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-weight: 200;
+      letter-spacing: 2px;
+      color: transparent;
+      background-image: linear-gradient(90deg, #ff3155 25%, #ff40ff6e 68%, #ffd800 98%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-stroke: 1px #2228;
+      margin-bottom: 24px;
+      margin-top: 24px;
+      user-select: none;
+    }
+
+    .copy-terminal-btn {
+      position: absolute;
+      top: 110px;
+      right: 34px;
+      z-index: 20;
+      width: 42px;
+      height: 42px;
+      padding: 6px;
+      border-radius: 8px;
+      background: #252222;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Hover effect: glow and color change */
+    .copy-terminal-btn:hover {
+      background: #726a6a;
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(114, 106, 106, 0.6), 0 0 30px rgba(114, 106, 106, 0.4);
+    }
+
+    /* When clicked/copied: green glow and scale */
+    .copy-terminal-btn.copied {
+      background: #22c55e;
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(34, 197, 94, 0.5);
+    }
+
+    .copy-terminal-btn img {
+      width: 32px;
+      height: 32px;
+      transition: transform 0.3s ease, opacity 0.2s ease;
+    }
+
+    /* Icon rotation on hover */
+    .copy-terminal-btn:hover img {
+      transform: rotate(10deg);
+    }
+
+    /* Icon scale on click */
+    .copy-terminal-btn.copied img {
+      transform: scale(1.2);
+    }
+
+
+
+    .preview-button {
+      background-color: #4CAF50; /* Green */
+      color: white;
+      padding: 1px 2px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+    }
+    .preview-button:hover {
+      background-color: #127e17;
+    }
+
+    .preview-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .preview-box {
+      position: relative;
+      width: min(1000px, 95vw);
+      height: min(700px, 90vh);
+      background: #111;
+      border: 2px solid #ffd800;
+      border-radius: 18px;
+      padding: 22px;
+      color: #ffd800;
+      box-shadow: 0 0 30px rgba(255, 216, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .close-preview {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: #ff3155;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .preview-box iframe {
+      width: 100%;
+      flex: 1;
+      border: 1px solid #ffd800;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .step2-status {
+      display: none;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #ffd800;
+      font-family: Inter, sans-serif;
+      min-height: 24px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .step2-status.show {
+      opacity: 1;
+    }
+
+    .language-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+  
+    .lang-note {
+      font-size: 0.65rem;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-left">
+            <img src="logo.png" alt="Sparkcode AI Logo" class="site-logo" />
+            <span class="account-text"></span>
+        </div>
+        <nav class="nav-bar-centered" aria-label="Primary Navigation">
+            <h1>Sparkcode AI </h1>
+        </nav>
+        <div class="header-right">
+            <div class="account-container">
+                <img src="https://lh3.googleusercontent.com/a-/ALV-UjW4GVB296-2e4OzAZqZ3MAaEXWdO3jyN_d6fPR6ZVJ7_MZyOil0x-O-BRjnRKpDfAGdm5ziZhIe7UR6DDwBpjeBgNYJFc1q3J3IR2JGqhxgoeuVz2V8wMLWwaV4Ufn_2OU3SaLamL2Jb3PXRUu-q7DgQUmLmJKi1-fYBNDU-Tz2mnedxyIrf-lpTZlcvlvG3St7fsteWIuW3RZToc0XC_Wtb1l-GmLxBi1Yw9FUR3Is2GIEhB9mUaoMOgU4JvV_6CaRwwObLVGSjt1iKXLTmu1SoHtcxRzJldpIAsUSQ0LJ4pPULysNeMjsUB69B1Z2NwGJm-HVdT8Y6-55dH4HW8tgNSnmVoy9deoWgzsXhBAcApLn9S_NXAm61uw7uwYOYH7t62PAt2jCXkVo6BKSubSYtmI7gRGZ2NYDcz18GWbLS4coes5eGhWNQTzr8BPIYhK80Zue-C1wa2Cl__zaIaIe2GAWbJPkwf9Q8nwpuHcTsdrmsihsohd5JGlOipYjlZhO_AN8GcztdDw6nms9n8fEcLn-OMe8yoS_VZ6P4ui6EwisXmaX3XAq585-QT60QDT3ftQ1NEB2dkrqKkNXjIjcxrFTo2Wdq5dwCxR2r_zEQlJ8FPzA_eGIktoHnLoiuzZMLkIBpgBv6JBWbSnttLs4AiPgGWDx41v278zubiiZD4SYz4udX7_VmAxFxf3Z7j8nqFH5ny5h_F2K7EJ0MaMJvRr071gldeYcpCdZCCNbQZGvlm4IUlbwzbozsJ0RpqvXxqUBnbUw_yMrasklqIDq2PXIQOS2s6gUUZq4Ht4n2gVXtveUBVkjT2Fcr5nk1_7t_OJDaa_lQrt-GV48KhsWqv592479e5n9CGWEYyPRS_9ir2Lt9Wugz16aDyXoNXW9LliMwSVCM-HLZ-CPNaOW2vHkc_FgB9j4nvSoKx9wCQyEWQ6SnMW5GZVEFMwPKysm96_YRTYnX6bYL_hwuBW9sjoc1BrVwRWa15EEOWXhoe9AhaV6yPyrrcSz1fEYQsvFQrh9pQVGlOhfTNiJ8LiwqTs7kR4CpazmpWmJQsZwFv82TYNoVc4G=s32-c" alt="Account Icon" class="account-icon"/>
+                <span class="account-text">Account</span>
+                <ul class="dropdown">
+                    <li>Profile</li><li>Settings</li><li>Logout</li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Chat message display area -->
+    <div class="chat-area-wrapper" id="chat-area"></div>
+    <div class="message-top-box">Welcome to Sparkcode AI ! <br/> This is a AI-powered tool to help you build any project in any language.<br> Start building your project by clicking on the button on your left.</div>
+    
+    <!-- PAGE -->
+    <div class="page-wrapper">
+        <div class="sidebar">
+            <div class = "section-reveal"></div>
+            <h2>AI Creations In 3 Simple Steps:</h2>
+            <div class="divider"></div>
+
+            <!-- Step 1 -->
+            <div class="step1-container">
+                <div class="step-label">Step 1</div>
+                <h3>First Click On What You Would Like To Create</h3>
+                <div class="sidebar-section">
+                    <h3>Applications</h3>
+                    <button class="step1-btn" id="desktop">Desktop Apps</button>
+                    <button class="step1-btn" id="mobile">Mobile Apps</button>
+                    <button class="step1-btn" id="web">Web Apps</button>
+                    <button class="step1-btn" id="websites">Websites</button>
+                </div>
+                <div class="sidebar-section">
+                    <h3>Games</h3>
+                    <button class="step1-btn" id="desktop-games">Desktop Games</button>
+                    <button class="step1-btn" id="mobile-games">Mobile Games</button>
+                    <button class="step1-btn" id="web-games">Web Games</button>
+                    <button class="step1-btn" id="2d-games">2D Games</button>
+                    <button class="step1-btn" id="3d-games">3D Games</button>
+                </div>
+                <div class="sidebar-section">
+                    <h3>AI Tools</h3>
+                    <button class="step1-btn" id="chatbot">Chatbot</button>
+                    <button class="step1-btn" id="analytics-tools">Analytics tools</button>
+                    <button class="step1-btn" id="research-tools">Research tools</button>
+                    <button class="step1-btn" id="ai-assistants">AI assistants</button> 
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="blurred-glitch" style="margin-top: 30px;">
+                <div class="step-label">Step 2</div>
+                <h3>Now You'll Add The Specific Details For Your Idea</h3>
+                <div class="sidebar-section">
+                  <h3>Your idea isn't below? Create your own!</h3>
+                  <button class="plus-btn">+</button> 
+                  <h3>Specific details examples:</h3>
+
+                  <!-- Hidden container that will show the current category's buttons -->
+                  <div id="step2-buttons-container"></div>
+
+                  <!-- Pre-created Step 2 buttons for all categories -->
+                  <!-- Desktop Apps -->
+                  <div id="category-desktop-apps" class="step2-category" style="display:none;">
+                    <button id="desktop-1" class="step2-btn">Create a modern desktop habit tracker with streaks, reminders, analytics, and a clean mobile-first UI.</button>
+                    <button id="desktop-2" class="step2-btn">Build a sleek desktop expense tracker with charts, categories, monthly goals, and dark mode support.</button>
+                    <button id="desktop-3" class="step2-btn">Design a desktop study planner app with task lists, deadlines, progress bars, and an elegant dashboard.</button>
+                    <button id="desktop-4" class="step2-btn">Create a desktop note-taking app with folders, search, tags, and a minimalist interface.</button>
+                  </div>
+
+
+                  <!-- Mobile Apps -->
+                  <div id="category-mobile-apps" class="step2-category" style="display:none;">
+                    <button id="mobile-apps-1" class="step2-btn">Create a mobile fitness tracking app with workout logs, progress charts, and personalized plans.</button>
+                    <button id="mobile-apps-2" class="step2-btn">Build a mobile social media app with posts, comments, likes, and real-time notifications.</button>
+                    <button id="mobile-apps-3" class="step2-btn">Design a mobile shopping app with product categories, filters, cart, and secure checkout.</button>
+                    <button id="mobile-apps-4" class="step2-btn">Create a mobile weather app with live updates, forecasts, maps, and customizable alerts.</button>
+                  </div>
+
+
+                  <!-- Web Apps -->
+                  <div id="category-web-apps" class="step2-category" style="display:none;">
+                    <button id="web-apps-1" class="step2-btn">Build a modern web habit tracker with streaks, reminders, analytics, and a clean responsive UI.</button>
+                    <button id="web-apps-2" class="step2-btn">Create a web expense tracker with charts, categories, monthly goals, and dark mode support.</button>
+                    <button id="web-apps-3" class="step2-btn">Design a web study planner with task lists, deadlines, progress bars, and an elegant dashboard.</button>
+                    <button id="web-apps-4" class="step2-btn">Build a web project management tool with teams, tasks, timelines, and real-time collaboration.</button>
+                  </div>
+
+
+                  <!-- Websites -->
+                  <div id="category-websites" class="step2-category" style="display:none;">
+                    <button id="websites-1" class="step2-btn">Create a modern portfolio website with animated sections, gallery, and contact form.</button>
+                    <button id="websites-2" class="step2-btn">Build an e-commerce website landing page with product showcase, features, and checkout button.</button>
+                    <button id="websites-3" class="step2-btn">Design a blog website with articles, categories, search, and responsive layout.</button>
+                    <button id="websites-4" class="step2-btn">Create a restaurant website with menu, reservations, reviews, and location map.</button>
+                  </div>
+
+
+                  <!-- Desktop Games -->
+                  <div id="category-desktop-games" class="step2-category" style="display:none;">
+                    <button id="desktop-games-1" class="step2-btn">Generate a polished desktop memory card game with levels, score tracking, timers, and smooth animations.</button>
+                    <button id="desktop-games-2" class="step2-btn">Make a desktop snake game with responsive controls, high scores, and a clean retro-modern UI.</button>
+                    <button id="desktop-games-3" class="step2-btn">Create a desktop quiz game with categories, score tracking, timer mode, and a modern dashboard.</button>
+                    <button id="desktop-games-4" class="step2-btn">Build a desktop puzzle game with levels, hints, score system, and elegant visual effects.</button>
+                  </div>
+
+
+                  <!-- Mobile Games -->
+                  <div id="category-mobile-games" class="step2-category" style="display:none;">
+                    <button id="mobile-games-1" class="step2-btn">Create a casual mobile jumping game with collectibles, levels, power-ups, and smooth animations.</button>
+                    <button id="mobile-games-2" class="step2-btn">Build a mobile racing game with tracks, cars, upgrades, and competitive leaderboards.</button>
+                    <button id="mobile-games-3" class="step2-btn">Design a mobile matching game with patterns, timers, streaks, and colorful visuals.</button>
+                    <button id="mobile-games-4" class="step2-btn">Create a mobile arcade shooter with enemies, weapons, scores, and epic boss battles.</button>
+                  </div>
+
+
+                  <!-- Web Games -->
+                  <div id="category-web-games" class="step2-category" style="display:none;">
+                    <button id="web-games-1" class="step2-btn">Generate a polished web memory card game with levels, score tracking, timers, and smooth animations.</button>
+                    <button id="web-games-2" class="step2-btn">Make a web snake game with responsive controls, high scores, and a clean retro-modern UI.</button>
+                    <button id="web-games-3" class="step2-btn">Create a web quiz game with categories, score tracking, timer mode, and a modern dashboard.</button>
+                    <button id="web-games-4" class="step2-btn">Build a simple web platformer with collectibles, levels, and smooth character movement.</button>
+                  </div>
+
+
+                  <!-- 2D Games -->
+                  <div id="category-2d-games" class="step2-category" style="display:none;">
+                    <button id="2d-games-1" class="step2-btn">Create a 2D platformer game with levels, collectibles, enemies, and smooth character controls.</button>
+                    <button id="2d-games-2" class="step2-btn">Build a 2D top-down shooter with weapons, enemies, health system, and epic boss fights.</button>
+                    <button id="2d-games-3" class="step2-btn">Design a 2D puzzle game with mechanics, levels, hints, and beautiful visual effects.</button>
+                    <button id="2d-games-4" class="step2-btn">Create a 2D racing game with tracks, cars, boosts, and competitive time trials.</button>
+                  </div>
+
+
+                  <!-- 3D Games -->
+                  <div id="category-3d-games" class="step2-category" style="display:none;">
+                    <button id="3d-games-1" class="step2-btn">Make an immersive 3D adventure with exploration, quests, items, and realistic graphics.</button>
+                    <button id="3d-games-2" class="step2-btn">Create a 3D shooter with weapons, enemies, levels, and stunning visual effects.</button>
+                    <button id="3d-games-3" class="step2-btn">Build a 3D racing game with tracks, cars, upgrades, and realistic physics.</button>
+                    <button id="3d-games-4" class="step2-btn">Design a 3D puzzle game with mechanics, levels, and immersive environments.</button>
+                  </div>
+
+
+                  <!-- Chatbot -->
+                  <div id="category-chatbot" class="step2-category" style="display:none;">
+                    <button id="chatbot-1" class="step2-btn">Create an AI chatbot with natural conversations, context memory, and helpful responses.</button>
+                    <button id="chatbot-2" class="step2-btn">Build a customer support chatbot with FAQs, troubleshooting, and ticket creation.</button>
+                    <button id="chatbot-3" class="step2-btn">Design a learning chatbot with tutorials, quizzes, explanations, and progress tracking.</button>
+                    <button id="chatbot-4" class="step2-btn">Create a fun chatbot with personality, jokes, stories, and interactive games.</button>
+                  </div>
+
+
+                  <!-- Analytics tools -->
+                  <div id="category-analytics-tools" class="step2-category" style="display:none;">
+                    <button id="analytics-tools-1" class="step2-btn">Create an analytics dashboard with charts, metrics, filters, and real-time data updates.</button>
+                    <button id="analytics-tools-2" class="step2-btn">Build a data visualization tool with graphs, tables, exports, and customizable views.</button>
+                    <button id="analytics-tools-3" class="step2-btn">Design a business analytics tool with KPIs, reports, trends, and predictive insights.</button>
+                    <button id="analytics-tools-4" class="step2-btn">Create a web analytics tool with traffic, conversions, user behavior, and reports.</button>
+                  </div>
+
+
+                  <!-- Research tools -->
+                  <div id="category-research-tools" class="step2-category" style="display:none;">
+                    <button id="research-tools-1" class="step2-btn">Create a research organizer with notes, citations, sources, and automated bibliography.</button>
+                    <button id="research-tools-2" class="step2-btn">Build a literature search tool with filters, results, saving, and export capabilities.</button>
+                    <button id="research-tools-3" class="step2-btn">Design a data collection tool with surveys, responses, analysis, and visualizations.</button>
+                    <button id="research-tools-4" class="step2-btn">Create a citation manager with databases, grouping, formats, and quick insertion.</button>
+                  </div>
+
+
+                  <!-- AI assistants -->
+                  <div id="category-ai-assistants" class="step2-category" style="display:none;">
+                    <button id="ai-assistants-1" class="step2-btn">Create an AI assistant with task automation, reminders, suggestions, and smart notifications.</button>
+                    <button id="ai-assistants-2" class="step2-btn">Build a writing assistant with grammar check, suggestions, improvements, and style analysis.</button>
+                    <button id="ai-assistants-3" class="step2-btn">Design a coding assistant with code generation, debugging, explanations, and best practices.</button>
+                    <button id="ai-assistants-4" class="step2-btn">Create a research assistant with search, summarization, citations, and insights.</button>
+                  </div>
+                  
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="blurred-glitch" style="margin-top: 30px;">
+                <div class="step-label">Step 3</div>
+                <h3>Change Whatever You Would Like In The Creation With Ease</h3>
+                <div class="sidebar-section">
+                    <h3>Your tweak isn't below? Create your own!</h3>
+                    <button class="plus-btn">+</button> 
+                    <h3>Examples tweaks:</h3>
+                    <button>Change the color scheme from blue and white to black and red.</button> 
+                    <button>Make the background darker and add a gradient effect.</button> 
+                    <button>Replace the current logo with a cleaner, minimal version.</button>     
+                    <button>Create a toggle to switch between dark mode and light mode.</button>   
+                    <button>Let the menu slide in from the left instead of dropping down.</button>
+                    <button>Enable drag and drop for rearranging the elements.</button>
+                    <button>Add sound effects when the user interacts with certain items.</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="code-sidebar">
+            <div class="section-reveal"></div>
+            <h3>Your code will show here in the Python Terminal</h3>
+            <div id="step2-status" class="step2-status"></div>
+            <script type="py" src="./actualpythoncode.py" config="./pyscript.json" terminal></script>
+            <button class="copy-terminal-btn" id="copyTerminalBtn" title="Copy terminal">
+                <img src="copy.png" alt="Copy" width="35" height="35" id="copyIcon"/>
+            </button>
+            <div><h3>Preview/Output Panel</h3><p style ="font-size:0.6rem; margin-top:-7px;">Click <button class="preview-button" id="preview-button">Here</button> once the code is generated to see the preview of your creation! (This will only work for some Python creations and websites for now, more support coming soon!)</p></div>
+        </div>
+    </div>
+    <button id="submit-btn" style="display:none;"></button>
+
+    <!-- Chatbox at the very bottom -->
+    <form class="chatbox-bar" id="chatbox-bar" autocomplete="off">
+        <input type="text" id="chat-input" placeholder="Complete Step 1 by clicking a button on the sidebar." autocomplete="off" disabled style="opacity: 0.5; cursor: not-allowed;"/>
+        <button type="submit" id="send-button">➤</button>
+    </form>
+
+
+    <div id="preview-overlay" class="preview-overlay" style="display:none;">
+        <div class="preview-box">
+            <button id="close-preview" class="close-preview">×</button>
+            <h2>Preview Window</h2>
+            <p>This is your live preview area.</p>
+            <iframe
+                id="preview-iframe"
+                src="out_putfile.html"
+                title="Preview Frame">
+            </iframe>
+        </div>
+    </div>
+
+<script>
+    function openPreviewOverlay() {
+      const overlay = document.getElementById("preview-overlay");
+      overlay.style.display = "flex";
+    }
+
+    function closePreviewOverlay() {
+      const overlay = document.getElementById("preview-overlay");
+      overlay.style.display = "none";
+    }
+
+    document.getElementById("close-preview").addEventListener("click", closePreviewOverlay);
+
+    document.getElementById("preview-button").addEventListener("click", function () {
+        openPreviewOverlay();
+    });
+</script>
+  <script>
+        // Track user selections
+        let selectedCreationType = null;
+        let selectedLanguage = null;
+        let languageSelected = false;
+        let step2Completed = false;
+        let selectedLanguageId = null;
+
+        const languageMap = {
+          'Desktop Apps': [
+            { id: 'desktop-python', label: 'Python', note: 'Preview Available' },
+            { id: 'desktop-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: 'desktop-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'desktop-c++', label: 'C++', note: 'Preview NOT Available' },
+            { id: 'desktop-electron', label: 'JavaScript / TypeScript', note: 'Preview NOT Available' }
+          ],
+          'Mobile Apps': [
+            { id: 'mobile-swift', label: 'Swift', note: 'Preview NOT Available' },
+            { id: 'mobile-kotlin', label: 'Kotlin', note: 'Preview NOT Available' },
+            { id: 'mobile-dart', label: 'Dart', note: 'Preview NOT Available' },
+            { id: 'mobile-react-native', label: 'JavaScript / TypeScript', note: 'Preview NOT Available' }
+          ],
+          'Web Apps': [
+            { id: 'web-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: 'web-ts', label: 'TypeScript', note: 'Preview NOT Available' },
+            { id: 'web-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'web-php', label: 'PHP', note: 'Preview NOT Available' },
+            { id: 'web-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'web-go', label: 'Go', note: 'Preview NOT Available' }
+          ],
+          'Websites': [
+            { id: 'site-html-css-js', label: 'HTML + CSS + JavaScript', note: 'Preview NOT Available' },
+            { id: 'site-ts', label: 'TypeScript', note: 'Preview NOT Available' },
+            { id: 'site-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'site-php', label: 'PHP', note: 'Preview NOT Available' }
+          ],
+          'Desktop Games': [
+            { id: 'desktop-games-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: 'desktop-games-c++', label: 'C++', note: 'Preview NOT Available' },
+            { id: 'desktop-games-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'desktop-games-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'desktop-games-js', label: 'JavaScript / TypeScript', note: 'Preview NOT Available' }
+          ],
+          'Mobile Games': [
+            { id: 'mobile-games-kotlin', label: 'Kotlin', note: 'Preview NOT Available' },
+            { id: 'mobile-games-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'mobile-games-swift', label: 'Swift', note: 'Preview NOT Available' },
+            { id: 'mobile-games-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: 'mobile-games-c++', label: 'C++', note: 'Preview NOT Available' }
+          ],
+          'Web Games': [
+            { id: 'web-games-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: 'web-games-ts', label: 'TypeScript', note: 'Preview NOT Available' },
+            { id: 'web-games-python', label: 'Python', note: 'Preview Available' }
+          ],
+          '2D Games': [
+            { id: '2d-python', label: 'Python', note: 'Preview Available' },
+            { id: '2d-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: '2d-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: '2d-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: '2d-lua', label: 'Lua', note: 'Preview NOT Available' }
+          ],
+          '3D Games': [
+            { id: '3d-c++', label: 'C++', note: 'Preview NOT Available' },
+            { id: '3d-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: '3d-js', label: 'JavaScript / TypeScript', note: 'Preview NOT Available' },
+            { id: '3d-lua', label: 'Lua', note: 'Preview NOT Available' }
+          ],
+          'Chatbot': [
+            { id: 'chatbot-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'chatbot-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: 'chatbot-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'chatbot-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: 'chatbot-go', label: 'Go', note: 'Preview NOT Available' }
+          ],
+          'Analytics tools': [
+            { id: 'analytics-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'analytics-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: 'analytics-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'analytics-php', label: 'PHP', note: 'Preview NOT Available' },
+            { id: 'analytics-go', label: 'Go', note: 'Preview NOT Available' }
+          ],
+          'Research tools': [
+            { id: 'research-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'research-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: 'research-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'research-c++', label: 'C++', note: 'Preview NOT Available' },
+            { id: 'research-go', label: 'Go', note: 'Preview NOT Available' }
+          ],
+          'AI assistants': [
+            { id: 'ai-python', label: 'Python', note: 'Preview NOT Available' },
+            { id: 'ai-js', label: 'JavaScript', note: 'Preview NOT Available' },
+            { id: 'ai-java', label: 'Java', note: 'Preview NOT Available' },
+            { id: 'ai-csharp', label: 'C#', note: 'Preview NOT Available' },
+            { id: 'ai-go', label: 'Go', note: 'Preview NOT Available' }
+          ]
+        };
+
+        // Helper to create and insert a chat message with optional icon
+        function addChatMessage(msg, who='bot', withIcon=false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message' + (who === 'user' ? ' user' : '');
+            if(withIcon && who === 'bot') {
+                msgDiv.className += ' chat-message-with-icon';
+            }
+            msgDiv.innerText = msg;
+            if(withIcon && who === 'bot') {
+                const icon = document.createElement('div');
+                icon.className = 'chat-icon';
+                icon.innerHTML = '<img src= "logo.png" alt="Sparkcode AI Icon" style="width:19px;height:auto;border-radius:4px;">';
+                msgDiv.appendChild(icon);
+            }
+            document.getElementById('chat-area').appendChild(msgDiv);
+            setTimeout(() => { msgDiv.style.opacity = 1; }, 80);
+            document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
+        }
+
+        function addLanguageDropdown(creationType) {
+            const old = document.getElementById('language-dropdown');
+            if (old) old.remove();
+
+            const dropdownDiv = document.createElement('div');
+            dropdownDiv.className = 'language-dropdown';
+            dropdownDiv.id = 'language-dropdown';
+
+            const languages = languageMap[creationType] || [];
+
+            languages.forEach(item => {
+                const option = document.createElement('button');
+                option.className = 'language-option';
+                option.type = 'button';
+                option.id = item.id;
+
+                option.innerHTML = `
+                    <span class="lang-name">${item.label}</span>
+                    <span class="lang-note">${item.note || ''}</span>
+                `;
+
+                option.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    selectLanguage(item.label, item.id);
+                });
+
+                dropdownDiv.appendChild(option);
+            });
+
+            document.getElementById('chat-area').appendChild(dropdownDiv);
+            document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
+        }
+
+        // Handle language selection
+        function selectLanguage(lang, langId) {
+            selectedLanguage = lang;
+            selectedLanguageId = langId;
+            languageSelected = true;
+            const dropdown = document.getElementById('language-dropdown');
+            if(dropdown) dropdown.remove();
+            
+            addChatMessage('I want to create it in ' + lang, 'user');
+            addChatMessage('Great! You\'ve selected ' + lang + '. Now proceed to Step 2 to add specific details to your idea.', 'bot', true);
+            
+            document.querySelectorAll('.step2-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            });
+            
+            const input = document.getElementById('chat-input');
+            input.disabled = false;
+            input.placeholder = 'Complete Step 2 by clicking a button on the sidebar.';
+            input.style.opacity = '1';
+            input.style.cursor = 'text';
+            
+            setTimeout(() => {
+                const sidebar = document.querySelector('.sidebar');
+                const step2Container = document.querySelector('.blurred-glitch');
+                if(sidebar && step2Container) {
+                    step2Container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 500);
+        }
+
+        // When you click a Step 1 button - FIXED WITH updateStep2Buttons() CALL
+        document.querySelectorAll('.step1-btn').forEach(btn=>{
+            btn.addEventListener('click', function(){
+                selectedCreationType = btn.textContent;
+                languageSelected = false;
+                step2Completed = false;  // FIXED: Reset step2Completed
+                
+                addChatMessage('Sparkcode AI: You\'ve selected "' + btn.textContent + '". Tell what language you want to create it in!', 'bot', true);
+                addLanguageDropdown(selectedCreationType);
+                updateStep2Buttons(selectedCreationType);  // FIXED: Added this line to update Step 2 buttons
+                
+                document.querySelectorAll('.step2-btn').forEach(b => {
+                    b.disabled = true;
+                    b.style.opacity = '0.5';
+                    b.style.cursor = 'not-allowed';
+                });
+                const input = document.getElementById('chat-input');
+                input.disabled = true;
+                input.placeholder = 'Complete Step 1 by selecting a language from the dropdown.';
+                input.style.opacity = '0.5';
+                input.style.cursor = 'not-allowed';
+            });
+        });
+
+
+        function showStep2StatusSequence() {
+            const status = document.getElementById("step2-status");
+            if (!status) return;
+
+            const gifLeft = '<img src="whitelogo.png" style="width:24px;height:24px;margin-right:8px;">';
+            const gifRight = '<img src="dots.gif" style="width:24px;height:24px;margin-left:8px;">';
+
+            status.style.display = "block";
+            status.classList.add("show");
+
+            status.innerHTML = `${gifLeft}<span>Step 2 complete. Thinking...</span>${gifRight}`;
+
+            setTimeout(() => {
+                status.innerHTML = `${gifLeft}<span>Generating your code... This take a few seconds.</span>${gifRight}`;
+            }, 35000);
+
+            setTimeout(() => {
+                status.innerHTML = `${gifLeft}<span>Your preview is ready.</span>`;
+            }, 60000);
+        }
+        // Function to finalize Step 2
+        function finalizeStep2() {
+            if(step2Completed) return;
+            step2Completed = true;
+            
+            setTimeout(() => {
+                // Move copy button up 10px
+                const copyBtn = document.getElementById("copyTerminalBtn");
+                if (copyBtn) {
+                    copyBtn.style.top = "120px";  // Was 110px, now 100px (10px up)
+                }
+
+                window.scrollTo(0, 0);
+
+                document.querySelectorAll('.sidebar button').forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.3';
+                    btn.style.cursor = 'not-allowed';
+                    btn.style.pointerEvents = 'none';
+                });
+                
+                const input = document.getElementById('chat-input');
+                input.disabled = true;
+                input.style.opacity = '0.3';
+                input.style.cursor = 'not-allowed';
+                input.style.pointerEvents = 'none';
+                
+                const sendBtn = document.getElementById('send-button');
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.3';
+                sendBtn.style.cursor = 'not-allowed';
+                sendBtn.style.pointerEvents = 'none';
+                
+                const chatArea = document.querySelector('.chat-area-wrapper');
+                const chatbox = document.getElementById('chatbox-bar');
+                const messageBox = document.querySelector('.message-top-box');
+                chatArea.classList.add('contracted');
+                chatbox.classList.add('contracted');
+                messageBox.classList.add('contracted');
+                
+                const codeSidebar = document.querySelector('.code-sidebar');
+                codeSidebar.classList.add('expanding');
+                setTimeout(() => {
+                    codeSidebar.classList.remove('expanding');
+                    codeSidebar.classList.add('expanded');
+                }, 1000);
+            }, 900);
+              
+            showStep2StatusSequence();
+        }
+
+        // When you click a Step 2 button
+        document.querySelectorAll('.step2-btn').forEach(btn=>{
+            btn.addEventListener('click', function(){
+                if(step2Completed) return;
+                const buttonText = btn.textContent;
+
+                addChatMessage('I want to ' + buttonText, 'user');
+                addChatMessage('Perfect! We\'ll begin creating your ' + selectedCreationType + ' in ' + selectedLanguage + ' right now. Sit back and relax as we work on it. You\'ll see your creation on your right!', 'bot', true);
+                finalizeStep2();
+            });
+        });
+
+        // Prevent form submission and add send button handler for Step 2 custom input
+        const chatform = document.getElementById('chatbox-bar');
+        if(chatform) {
+            chatform.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent page refresh
+                
+                const input = document.getElementById('chat-input');
+                const customText = input.value.trim();
+                
+                // Only proceed if we're in Step 2 (language selected but step2 not completed)
+                if(languageSelected && !step2Completed && customText) {
+                    // Add chat messages (same as Step 2 buttons)
+                    addChatMessage('I want to ' + customText, 'user');
+                    addChatMessage('Perfect! We\'ll begin creating your ' + selectedCreationType + ' in ' + selectedLanguage +  customText + ' right now. Sit back and relax as we work on it. You\'ll see your creation on your right!', 'bot', true);
+                    
+                    // Call finalizeStep2 (same as Step 2 buttons)
+                    finalizeStep2();
+                    
+                    // Clear the input
+                    input.value = '';
+                }
+            });
+        }
+        
+        // Add click handlers to plus buttons
+        document.querySelectorAll('.plus-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if(languageSelected) {
+                    const chatbox = document.getElementById('chatbox-bar');
+                    const input = document.getElementById('chat-input');
+                    
+                    chatbox.classList.remove('shine');
+                    void chatbox.offsetWidth;
+                    chatbox.classList.add('shine');
+                    
+                    const stepLabel = btn.closest('.sidebar-section').parentElement.querySelector('.step-label');
+                    if(stepLabel && stepLabel.textContent.includes('Step 2')) {
+                        input.placeholder = 'Describe your custom idea...';
+                        input.focus();
+                    } else if(stepLabel && stepLabel.textContent.includes('Step 3')) {
+                        input.placeholder = 'Describe your custom tweak...';
+                        input.focus();
+                    }
+                }
+            });
+        });
+
+        function updateStep2Buttons(creationType) {
+          // Map creationType to category container ID
+          const categoryMap = {
+              'Desktop Apps': 'category-desktop-apps',
+              'Mobile Apps': 'category-mobile-apps',
+              'Web Apps': 'category-web-apps',
+              'Websites': 'category-websites',
+              'Desktop Games': 'category-desktop-games',
+              'Mobile Games': 'category-mobile-games',
+              'Web Games': 'category-web-games',
+              '2D Games': 'category-2d-games',
+              '3D Games': 'category-3d-games',
+              'Chatbot': 'category-chatbot',
+              'Analytics tools': 'category-analytics-tools',
+              'Research tools': 'category-research-tools',
+              'AI assistants': 'category-ai-assistants'
+          };
+
+          const containerId = categoryMap[creationType];
+
+          // Hide all categories
+          document.querySelectorAll('.step2-category').forEach(cat => {
+              cat.style.display = 'none';
+          });
+
+          // Show selected category
+          if (containerId) {
+              const container = document.getElementById(containerId);
+              if (container) {
+                  container.style.display = '';
+              }
+          }
+
+          // Enable buttons in the visible category
+          const visibleButtons = document.querySelectorAll(`#${containerId} .step2-btn`);
+          visibleButtons.forEach(btn => {
+              btn.disabled = false;
+              btn.style.opacity = '1';
+              btn.style.cursor = 'pointer';
+          });
+
+          // Disable buttons in hidden categories
+          document.querySelectorAll('.step2-category:not(#' + containerId + ') .step2-btn').forEach(btn => {
+              btn.disabled = true;
+              btn.style.opacity = '0.5';
+              btn.style.cursor = 'not-allowed';
+          });
+        }
+    </script>
+
+    <script>
+        const copyBtn = document.getElementById("copyTerminalBtn");
+        const copyIcon = document.getElementById("copyIcon");
+
+        const checkIconSvg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
+                <path fill="white" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+            </svg>
+        `;
+        const checkIconBase64 = btoa(checkIconSvg);
+
+        copyBtn.addEventListener("click", async () => {
+            const terminal = document.querySelector("py-terminal, pyscript-terminal, .terminal");
+
+            if (!terminal) {
+                alert("Terminal not found.");
+                return;
+            }
+
+            const text = terminal.innerText || terminal.textContent || "";
+
+            try {
+                await navigator.clipboard.writeText(text);
+
+                copyBtn.classList.add("copied");
+                copyBtn.title = "Copied!";
+
+                copyIcon.src = `data:image/svg+xml;base64,${checkIconBase64}`;
+
+                setTimeout(() => {
+                    copyBtn.classList.remove("copied");
+                    copyBtn.title = "Copy terminal";
+                    copyIcon.src = "copy.png";
+                }, 1500);
+            } catch (err) {
+                console.error("Clipboard error:", err);
+                alert("Could not copy terminal text.");
+            }
+        });
+    </script>
+</body>
+</html>
